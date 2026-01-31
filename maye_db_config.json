@@ -1,0 +1,5 @@
+{
+    "buffer_pool_size": 1024,
+    "db_path": "./data/maye.db",
+    "page_size": 4096
+}
