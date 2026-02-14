@@ -1,7 +1,10 @@
 #include "replacer.h"
 #include <unordered_map>
+#include <mutex>
 
 namespace maye_sql {
+
+using namespace std;
 
 class Node {
 
@@ -35,6 +38,7 @@ class LRUReplacer: public Replacer {
         Node* head;
         Node* end;
         std::unordered_map<int, Node*> map;
+        mutex latch;
 
         void insert(Node* n);
         void remove(Node* n);

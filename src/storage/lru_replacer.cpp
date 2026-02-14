@@ -1,21 +1,23 @@
 #include "storage/lru_replacer.h"
 
+using namespace std;
+
 namespace maye_sql {
 
     LRUReplacer::LRUReplacer(size_t num_pages) {
         max_pages = num_pages;
         current_amount_pages = 0;
+        head = nullptr;
+        end = nullptr;
     }
 
-    // LRUReplacer::~LRUReplacer() {
-
-    // }
-
     size_t LRUReplacer::Size() {
+        lock_guard<mutex> lock(latch);
         return current_amount_pages;
     }
 
     bool LRUReplacer::Victim(int *frame_id) {
+        lock_guard<mutex> lock(latch);
         if (current_amount_pages == 0) {
             return false;
         }
@@ -25,11 +27,13 @@ namespace maye_sql {
         map.erase(end->frame_id);
         remove(end);
         delete curr;
+        current_amount_pages--;
 
         return true;
     }
 
     void LRUReplacer::Pin(int frame_id) {
+        lock_guard<mutex> lock(latch);
         // Did not find it in the map, add the node
         if (map.find(frame_id) == map.end()) {
             Node* n = new Node(frame_id);
@@ -47,6 +51,7 @@ namespace maye_sql {
     }
 
     void LRUReplacer::Unpin(int frame_id) {
+        lock_guard<mutex> lock(latch);
         // if it's not in, add it to
         if (map.find(frame_id) == map.end()) {
             // check first if we have capacity
@@ -66,7 +71,7 @@ namespace maye_sql {
                 if (current_amount_pages + 1 > max_pages) {
                     throw new BufferPoolException("can't add a new page, we are too full");
                 }
-                n->pinned = true;
+                n->pinned = false;
                 insert(n);
                 current_amount_pages++;
             // if it is already in the linked list remove it and move it to the back
@@ -91,6 +96,7 @@ namespace maye_sql {
     }
 
     void LRUReplacer::remove(Node* n) {
+
         if (n->next != nullptr) {
             n->next->prev = n->prev;
         }
@@ -98,6 +104,17 @@ namespace maye_sql {
         if (n->prev != nullptr) {
             n->prev->next = n->next;
         }
+
+        if (head == n) {
+            head = n->next;
+        }
+
+        if (end == n) {
+            end = n->prev;
+        }
+
+        n->next = nullptr;
+        n->prev = nullptr;
     }
 
 }
