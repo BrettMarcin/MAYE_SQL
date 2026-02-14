@@ -48,12 +48,10 @@ TEST(DiskManagerTest, ContentIntegrityTest) {
         dm.ReadPage(0, read_buffer);
         EXPECT_EQ(std::memcmp(read_buffer, "AAAAA", 5), 0);
         
-        // Full check: compare entire 4096 byte blocks
         char expected0[PAGE_SIZE];
         std::memset(expected0, 'A', PAGE_SIZE);
         EXPECT_EQ(std::memcmp(read_buffer, expected0, PAGE_SIZE), 0);
 
-        // 5. Verify Page 1
         dm.ReadPage(1, read_buffer);
         char expected1[PAGE_SIZE];
         std::memset(expected1, 'B', PAGE_SIZE);
