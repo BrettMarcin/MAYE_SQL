@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug LRU Test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/lru_replacer_test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug disk_test Test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/disk_test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
