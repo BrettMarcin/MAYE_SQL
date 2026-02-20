@@ -20,6 +20,8 @@ find_package(nlohmann_json REQUIRED)
 add_library(maye_sql_lib 
     src/storage/disk_manager.cpp
     src/storage/lru_replacer.cpp
+    src/storage/lruk_replacer.cpp
+    src/storage/disk_scheduler.cpp
 )
 
 target_include_directories(maye_sql_lib PUBLIC include)
@@ -46,6 +48,22 @@ target_link_libraries(lru_replacer_test PRIVATE
     nlohmann_json::nlohmann_json
 )
 
+add_executable(lruk_replacer_test tst/storage/disk_manager/lruk_replacer_test.cpp)
+target_link_libraries(lruk_replacer_test PRIVATE 
+    GTest::gtest_main 
+    maye_sql_lib 
+    nlohmann_json::nlohmann_json
+)
+
+add_executable(disk_scheduler_test tst/storage/disk_manager/disk_scheduler_test.cpp)
+target_link_libraries(disk_scheduler_test PRIVATE 
+    GTest::gtest_main 
+    maye_sql_lib 
+    nlohmann_json::nlohmann_json
+)
+
 enable_testing()
 add_test(NAME LRUReplacerTest COMMAND lru_replacer_test)
+add_test(NAME LRUKReplacerTest COMMAND lruk_replacer_test)
+add_test(NAME DiskSchedulerTest COMMAND disk_scheduler_test)
 add_test(NAME DiskManagerTest COMMAND disk_test)

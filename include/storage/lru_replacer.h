@@ -2,9 +2,9 @@
 #include <unordered_map>
 #include <mutex>
 
-namespace maye_sql {
-
 using namespace std;
+
+namespace maye_sql {
 
 class Node {
 

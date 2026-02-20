@@ -2,6 +2,10 @@
 #include "common/config.h"
 #include <fstream>
 
+using namespace maye_sql;
+
+namespace maye_sql {
+
 DiskManager::DiskManager(const std::string &db_file) : file_name_(db_file) {
     
     db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
@@ -42,4 +46,6 @@ void DiskManager::ShutDown() {
         db_io_.flush();
         db_io_.close();
     }
+}
+
 }

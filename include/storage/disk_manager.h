@@ -3,6 +3,8 @@
 #include <fstream>
 #include "common/config.h"
 
+namespace maye_sql {
+
 class DiskManager {
 public:
 
@@ -19,3 +21,5 @@ private:
     std::fstream db_io_;
     std::string file_name_;
 };
+
+}
