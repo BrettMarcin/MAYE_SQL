@@ -6,7 +6,7 @@
 using namespace std;
 
 TEST(DiskManagerTest, ReadWriteTest) {
-    DiskManager dm("test.db");
+    maye_sql::DiskManager dm("test.db");
     char data[4096];
     fill(data, data + 4096, 'B');
 
@@ -26,7 +26,7 @@ TEST(DiskManagerTest, ContentIntegrityTest) {
     std::remove(filename.c_str());
 
     {
-        DiskManager dm(filename);
+        maye_sql::DiskManager dm(filename);
 
         char page0_data[PAGE_SIZE];
         char page1_data[PAGE_SIZE];
@@ -41,7 +41,7 @@ TEST(DiskManagerTest, ContentIntegrityTest) {
 
     {
         // 3. Re-open to verify persistence
-        DiskManager dm(filename);
+        maye_sql::DiskManager dm(filename);
         char read_buffer[PAGE_SIZE];
 
         // 4. Verify Page 0

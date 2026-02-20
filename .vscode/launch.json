@@ -16,6 +16,22 @@
             "program": "${workspaceFolder}/build/disk_test",
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug LRU K Test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/lruk_replacer_test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug Disk Scheduler Test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/disk_scheduler_test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
