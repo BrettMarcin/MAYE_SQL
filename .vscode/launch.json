@@ -32,6 +32,22 @@
             "program": "${workspaceFolder}/build/disk_scheduler_test",
             "args": [],
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug buffer pool Test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/buffer_pool_test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug All Tests",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/disk_scheduler_test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

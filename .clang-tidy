@@ -1,0 +1,2 @@
+Checks: '-*,bugprone-*,modernize-*,readability-*,cppcoreguidelines-*,-readability-identifier-length,-cppcoreguidelines-avoid-c-arrays,-modernize-avoid-c-arrays,-cppcoreguidelines-pro-bounds-array-to-pointer-decay'
+WarningsAsErrors: '*'
