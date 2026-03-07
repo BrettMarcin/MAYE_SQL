@@ -1,3 +1,5 @@
+#pragma once
+
 #include <future>
 #include <optional>
 #include <queue>
@@ -9,33 +11,31 @@ using namespace std;
 
 namespace maye_sql {
 
-    struct DiskRequest {
-        bool is_write;
-        char *data;
-        page_id_t page_id;
-        promise<bool> callback;
-    };
+struct DiskRequest {
+  bool is_write;
+  char* data;
+  page_id_t page_id;
+  promise<bool> callback;
+};
 
-    class DiskScheduler {
+class DiskScheduler {
+  friend class DiskSchedulerTestPeer;
 
-        friend class DiskSchedulerTestPeer;
-        
-        public:
-            explicit DiskScheduler(DiskManager *disk_manager);
-            ~DiskScheduler();
+ public:
+  DiskManager* disk_manager;
+  explicit DiskScheduler(DiskManager* disk_manager);
+  ~DiskScheduler();
 
-            void Schedule(DiskRequest request);
+  void Schedule(DiskRequest request);
 
-            void StartWorkerThread();
+  void StartWorkerThread();
 
-        private:
-            DiskManager *disk_manager;
-            thread background_thread;
-            queue<optional<DiskRequest>> request_queue;
-            mutex latch;
-            condition_variable cv;
-    
-            bool shutdown{false};
+ private:
+  thread background_thread;
+  queue<optional<DiskRequest>> request_queue;
+  mutex latch;
+  condition_variable cv;
 
-    };
-}
+  bool shutdown{false};
+};
+}  // namespace maye_sql

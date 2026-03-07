@@ -12,5 +12,5 @@ using frame_id_t = std::int32_t;
 static constexpr page_id_t INVALID_PAGE_ID = -1;
 
 struct Config {
-    std::string database_path;
+  std::string database_path;
 };
