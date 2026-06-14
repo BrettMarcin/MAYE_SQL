@@ -7,37 +7,24 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    # Run on macOS so the build uses the same standard library (libc++) as local
+    # development. The Linux toolchain (libstdc++) surfaces missing transitive
+    # includes that don't occur on macOS.
+    runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            cmake \
-            ninja-build \
-            clang \
-            libgtest-dev \
-            nlohmann-json3-dev
+        run: brew install cmake ninja googletest nlohmann-json
 
       - name: Configure
-        run: >
-          cmake -S . -B build -G Ninja
-          -DCMAKE_BUILD_TYPE=Debug
-          -DCMAKE_C_COMPILER=clang
-          -DCMAKE_CXX_COMPILER=clang++
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
 
       - name: Build
         run: cmake --build build
 
       - name: Test
         working-directory: build
-        # detect_leaks=0: the tests currently leak their DiskManager/BPM/TableHeap.
-        # LeakSanitizer is inactive on macOS (where they were written) but active on
-        # Linux, so disable it here until those allocations are cleaned up.
-        env:
-          ASAN_OPTIONS: detect_leaks=0
         run: ctest --output-on-failure
