@@ -20,6 +20,7 @@ class TableHeap {
  private:
   BufferPoolManager* bpm;
   page_id_t first_page_id;
+  page_id_t last_page_id;
   mutex latch;
 };
 

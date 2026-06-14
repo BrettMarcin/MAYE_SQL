@@ -4,6 +4,16 @@ project(MAYE_SQL VERSION 0.1.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Put all executables directly in build/ regardless of which subdirectory
+# defines them, so binary paths stay stable (e.g. for launch.json).
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+# Default to a Debug build (with -g) so breakpoints work out of the box.
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
 
@@ -16,6 +26,7 @@ endif()
 # 1. PACKAGE DEPENDENCIES
 find_package(GTest REQUIRED)
 find_package(nlohmann_json REQUIRED)
+include(GoogleTest)
 
 
 include(FetchContent)
@@ -28,70 +39,20 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(spdlog)
 
-add_library(maye_sql_lib 
-    src/storage/disk_manager.cpp
-    src/storage/lru_replacer.cpp
-    src/storage/lruk_replacer.cpp
-    src/storage/disk_scheduler.cpp
-    src/storage/buffer_pool_manager.cpp
-)
+# Shared CMake helpers (e.g. add_maye_test)
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+include(AddMayeTest)
 
-add_library(test_support STATIC 
-    tst/main_tst.cpp
-)
+# Library targets
+add_subdirectory(src)
 
-target_include_directories(maye_sql_lib PUBLIC include)
-target_link_libraries(maye_sql_lib PRIVATE 
-    nlohmann_json::nlohmann_json 
-    spdlog::spdlog)
-target_compile_features(maye_sql_lib PUBLIC cxx_std_17)
-
+# Main executable
 add_executable(maye_sql src/main.cpp)
 target_link_libraries(maye_sql PRIVATE
-    maye_sql_lib 
+    maye_sql_lib
     nlohmann_json::nlohmann_json
     spdlog::spdlog)
 
-target_include_directories(test_support PUBLIC tst/include)
-target_link_libraries(test_support PUBLIC 
-    GTest::gtest
-    spdlog::spdlog 
-    nlohmann_json::nlohmann_json 
-    maye_sql_lib)
-
-# 2: TEST EXECUTABLES
-# 2.1: disk_test
-add_executable(disk_test tst/storage/disk_manager/disk_manager_test.cpp)
-target_link_libraries(disk_test PRIVATE 
-    test_support
-)
-
-# 2.2: lru_replacer_test
-add_executable(lru_replacer_test tst/storage/lru_replacer/lru_replacer_test.cpp)
-target_link_libraries(lru_replacer_test PRIVATE 
-    test_support
-)
-
-# 2.3: lruk_replacer_test
-add_executable(lruk_replacer_test tst/storage/lru_replacer/lruk_replacer_test.cpp)
-target_link_libraries(lruk_replacer_test PRIVATE 
-    test_support
-)
-
-# 2.34 disk_scheduler_test
-add_executable(disk_scheduler_test tst/storage/disk_scheduler/disk_scheduler_test.cpp)
-target_link_libraries(disk_scheduler_test PRIVATE 
-    test_support
-)
-
-add_executable(buffer_pool_test tst/storage/buffer_pool/buffer_pool_test.cpp)
-target_link_libraries(buffer_pool_test PRIVATE 
-    test_support
-)
-
+# Tests
 enable_testing()
-add_test(NAME LRUReplacerTest COMMAND lru_replacer_test)
-add_test(NAME LRUKReplacerTest COMMAND lruk_replacer_test)
-add_test(NAME DiskSchedulerTest COMMAND disk_scheduler_test)
-add_test(NAME DiskManagerTest COMMAND disk_test)
-add_test(NAME BufferPoolManagerTest COMMAND buffer_pool_test)
+add_subdirectory(tst)

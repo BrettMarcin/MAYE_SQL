@@ -24,7 +24,7 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager* disk_manager
 }
 
 Page* BufferPoolManager::NewPage(page_id_t* page_id) {
-  lock_guard<mutex> lock(latch);
+  scoped_lock<mutex> lock(latch);
   if (free_list.size() == 0) {
     frame_id_t frame;
     bool result = replacer->Evict(&frame);

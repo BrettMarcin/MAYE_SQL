@@ -1,0 +1,149 @@
+@startuml Maye_SQL_Architecture
+
+package "Common/Storage" {
+    class Page {
+        # char data[PAGE_SIZE]
+        + GetData() : char*
+    }
+
+    class TablePage {
+        + Init(page_id, prev_page_id)
+        + InsertTuple(tuple, rid) : bool
+        + GetTuple(rid, tuple) : bool
+        + MarkDelete(rid) : bool
+        + Compact()
+        + GetPageId() : page_id_t
+        + GetFreeSpacePointer() : uint32_t
+        - SetSlotCount(count)
+    }
+
+    struct Slot {
+        + offset : uint16_t
+        + length : uint16_t
+    }
+
+    class Tuple {
+        + GetData() : char*
+        + GetLength() : uint32_t
+        - rid : RID
+    }
+
+    class RID {
+        + GetPageId() : page_id_t
+        + GetSlotNum() : uint32_t
+    }
+
+    Page <|-- TablePage
+    TablePage "1" *-- "many" Slot : contains in header
+    TablePage ..> Tuple : manages
+    Tuple "1" *-- "1" RID : identified by
+}
+
+package "Disk Management" {
+    class DiskManager {
+        - db_io_ : fstream
+        - next_page_id : atomic<page_id_t>
+        + ReadPage(page_id, data)
+        + WritePage(page_id, data)
+        + AllocatePage() : page_id_t
+        + DeallocatePage(page_id)
+    }
+
+    class DiskScheduler {
+        - disk_manager : DiskManager*
+        - request_queue : Channel<DiskRequest>
+        + Schedule(request)
+        - ProcessRequests()
+    }
+
+    struct DiskRequest {
+        + is_write : bool
+        + data : char*
+        + page_id : page_id_t
+        + callback : promise<bool>
+    }
+
+    DiskScheduler "1" o-- "1" DiskManager : uses
+    DiskScheduler ..> DiskRequest : processes
+}
+
+package "Buffer Replacement" {
+    interface Replacer <<interface>> {
+        + Victim(frame_id) : bool
+        + Pin(frame_id)
+        + Unpin(frame_id)
+        + Size() : size_t
+        + RecordAccess(frame_id)
+        + SetEvictable(frame_id, bool)
+        + Remove(frame_id)
+    }
+
+    class LRUReplacer {
+        - max_pages : size_t
+        - current_amount_pages : size_t
+        - map : unordered_map<frame_id_t, Node*>
+        - head : Node*
+        - end : Node*
+        - latch : mutex
+        + LRUReplacer(size_t num_pages)
+        + Victim(frame_id) : bool
+        + Pin(frame_id)
+        + Unpin(frame_id)
+        + Size() : size_t
+        - insert(Node* n) : void
+        - remove(Node* n) : void
+    }
+
+    class LRUK_Replacer {
+        - k : size_t
+        - current_timestamp : size_t
+        - frame_data : unordered_map<frame_id_t, LRUKNode>
+        - evictable_frames : set<frame_id_t>
+        - replacer_size : size_t
+        - latch : mutex
+        + LRUK_Replacer(size_t pool_size, size_t k)
+        + RecordAccess(frame_id) : void
+        + SetEvictable(frame_id, bool) : void
+        + Remove(frame_id) : void
+        + Victim(frame_id) : bool
+        + Pin(frame_id) : void
+        + Unpin(frame_id) : void
+        + Size() : size_t
+    }
+
+    struct Node <<(S, #FF7700)>> {
+        + frame_id : int
+        + pinned : bool
+        + prev : Node*
+        + next : Node*
+    }
+
+    LRUReplacer "1" *-- "many" Node : manages
+    interface Replacer {
+    Replacer <|-- LRUReplacer
+    Replacer <|-- LRUK_Replacer
+}
+
+package "Buffer Pool Management" {
+    class BufferPoolManager {
+        - pool_size : size_t
+        - pages : Page[]
+        - page_table : unordered_map<page_id_t, frame_id_t>
+        - free_list : list<frame_id_t>
+        - replacer : unique_ptr<Replacer>
+        - disk_scheduler : unique_ptr<DiskScheduler>
+        - latch : mutex
+        + BufferPoolManager(size_t pool_size, DiskManager* disk_manager, size_t replacer_k)
+        + NewPage(page_id) : Page*
+        + FetchPage(page_id) : Page*
+        + UnpinPage(page_id, is_dirty) : bool
+        + DeletePage(page_id) : bool
+        + FlushPage(page_id) : bool
+    }
+
+    BufferPoolManager "1" o-- "1" Replacer : uses
+    BufferPoolManager "1" o-- "1" DiskScheduler : uses
+    BufferPoolManager "1" *-- "many" Page : manages frames
+    BufferPoolManager ..> DiskRequest : sends requests
+}
+@enduml

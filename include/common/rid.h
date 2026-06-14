@@ -19,6 +19,11 @@ class RID {
     return slot_num;
   }
 
+  inline void Set(page_id_t page_id, uint32_t slot_num) {
+    this->page_id = page_id;
+    this->slot_num = slot_num;
+  }
+
   bool operator==(const RID& other) const {
     return page_id == other.page_id && slot_num == other.slot_num;
   }
