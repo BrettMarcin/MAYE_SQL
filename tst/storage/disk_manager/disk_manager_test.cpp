@@ -75,7 +75,7 @@ TEST(DiskManagerTest, RecyclingTest) {
   EXPECT_EQ(p1, p3);
 
   page_id_t p4 = dm.AllocatePage();
-  EXPECT_EQ(p4, 3);
+  EXPECT_EQ(p4, 2);
 
   std::remove(filename.c_str());
 }

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <functional>
 #include "common/config.h"
 
 namespace maye_sql {
@@ -35,5 +36,15 @@ class RID {
   page_id_t page_id;
   uint32_t slot_num;
 };
-
 }  // namespace maye_sql
+
+namespace std {
+template <>
+struct hash<maye_sql::RID> {
+  size_t operator()(const maye_sql::RID& rid) const noexcept {
+    auto h1 = std::hash<page_id_t>{}(rid.GetPageId());
+    auto h2 = std::hash<uint32_t>{}(rid.GetSlotNum());
+    return h1 ^ (h2 << 1);
+  }
+};
+}
