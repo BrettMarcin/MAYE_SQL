@@ -2,52 +2,38 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug LRU Test",
+            "name": "Debug Test",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/build/lru_replacer_test",
-            "args": [],
-            "cwd": "${workspaceFolder}"
+            "program": "${workspaceFolder}/build/${input:testTarget}",
+            "args": [
+                "--gtest_filter=${input:testFilter}"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "testTarget",
+            "type": "pickString",
+            "description": "Which test binary to debug?",
+            "options": [
+                "disk_test",
+                "lru_replacer_test",
+                "lruk_replacer_test",
+                "disk_scheduler_test",
+                "buffer_pool_test",
+                "table_page_test",
+                "table_heap_test"
+            ],
+            "default": "table_heap_test"
         },
         {
-            "name": "Debug disk_test Test",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/disk_test",
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "Debug LRU K Test",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/lruk_replacer_test",
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "Debug Disk Scheduler Test",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/disk_scheduler_test",
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "Debug buffer pool Test",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/buffer_pool_test",
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "name": "Debug All Tests",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/disk_scheduler_test",
-            "args": [],
-            "cwd": "${workspaceFolder}"
+            "id": "testFilter",
+            "type": "promptString",
+            "description": "GTest filter (e.g. TableHeapTest.MultiplePageSpillTest, or * for all)",
+            "default": "*"
         }
     ]
 }

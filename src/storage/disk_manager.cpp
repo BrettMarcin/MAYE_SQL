@@ -59,7 +59,7 @@ void DiskManager::ReadPage(page_id_t page_id, char* data) {
 
 page_id_t DiskManager::AllocatePage() {
   std::lock_guard<std::mutex> lock(latch);
-  page_id_t result_id;
+  page_id_t result_id = -1;
 
   if (first_free_page != INVALID_PAGE_ID) {
     result_id = first_free_page;
