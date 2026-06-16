@@ -6,6 +6,8 @@ add_library(maye_sql_lib
     storage/buffer_pool_manager.cpp
     storage/table_page.cpp
     storage/table_heap.cpp
+    type/value.cpp
+
 )
 
 target_include_directories(maye_sql_lib PUBLIC ${PROJECT_SOURCE_DIR}/include)
