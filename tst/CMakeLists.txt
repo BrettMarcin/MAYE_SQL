@@ -16,3 +16,5 @@ add_maye_test(disk_scheduler_test storage/disk_scheduler/disk_scheduler_test.cpp
 add_maye_test(buffer_pool_test    storage/buffer_pool/buffer_pool_test.cpp)
 add_maye_test(table_page_test     storage/table_page/table_page_test.cpp)
 add_maye_test(table_heap_test     storage/table_heap/table_heap_test.cpp)
+add_maye_test(catalog_test     storage/catalog/catalog_test.cpp)
+add_maye_test(value_test       type/value_test.cpp)
